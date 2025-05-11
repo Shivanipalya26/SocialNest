@@ -7,7 +7,11 @@
   "author": "Shivani Palya",
   "license": "ISC",
   "packageManager": "pnpm@10.6.3",
+  "scripts": {
+    "dev": "tsc -b && node ./dist/server.js"
+  },
   "dependencies": {
+    "@prisma/client": "6.7.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0"
@@ -17,6 +21,7 @@
     "@types/dotenv": "^8.2.3",
     "@types/express": "^5.0.1",
     "@types/node": "^22.15.17",
+    "prisma": "^6.7.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
