@@ -108,6 +108,9 @@ export const accessToken = async (req: Request, res: Response) => {
       // screen_name
     } = Object.fromEntries(new URLSearchParams(response.data));
 
+    console.log('Oauth token:', accessToken);
+    console.log('Oauth token secret:', accessTokenSecret);
+
     if (!accessToken || !accessTokenSecret || !user_id) {
       res.status(500).json({ message: 'Failed to get access token' });
     }
