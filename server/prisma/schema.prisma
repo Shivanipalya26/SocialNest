@@ -39,8 +39,23 @@ model Account {
   @@id([provider, providerAccountId])
 }
 
+enum POST_STATUS {
+  PENDING
+  FAILED
+  SUCCESS
+}
+
 model Post {
-  id     String @unique @default(cuid())
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
+  id           String      @unique @default(cuid())
+  text         String?
+  provider     String?
+  userId       String
+  mediaAllKeys String[]
+  scheduledFor DateTime?
+  isScheduled  Boolean     @default(false)
+  status       POST_STATUS @default(PENDING)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
