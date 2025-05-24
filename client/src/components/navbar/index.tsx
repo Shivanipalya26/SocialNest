@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import React from 'react';
 import { Button } from '../ui/button';
-import MobileNavbar from './mobileNavbar';
+import MobileNavbar from './MobileNavbar';
 
 const NavBar = () => {
   return (
-    <header className="flex fixed p-4 z-40 w-full items-center justify-between mx-auto sm:px-6 backdrop-blur-lg">
+    <header className="flex fixed p-4 z-40 w-full items-center justify-between mx-auto sm:px-6 backdrop-blur-lg border-b">
       <Link href="/">SocialNest</Link>
       <div className="space-x-4 flex">
         <Link href="/signin">
