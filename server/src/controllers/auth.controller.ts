@@ -29,6 +29,7 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
         password: hashedPassword,
       },
     });
+    console.log(user, 'registered successfully');
 
     res.status(200).json({ success: true, user });
   } catch (error) {
@@ -65,16 +66,16 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        user: { id: user.id, name: user.name, email: user.email },
-        token: token,
-      });
+    res.status(200).json({
+      success: true,
+      user: { id: user.id, name: user.name, email: user.email },
+      token: token,
+    });
   } catch (error) {
     console.error('Login Error: ', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -82,6 +83,11 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
 };
 
 export const logout = async (req: AuthRequest, res: Response): Promise<void> => {
-  res.clearCookie('token');
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+  });
   res.status(200).json({ success: true, message: 'Logged out' });
 };

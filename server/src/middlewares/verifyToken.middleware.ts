@@ -5,14 +5,22 @@ import { AuthRequest } from '../types';
 
 export const verifyToken = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const token = req.cookies.token;
+  console.log('token: ', token);
   if (!token) {
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET as string);
-    req.userId = decoded as string;
+    const decoded = jwt.verify(token, JWT_SECRET as string) as {
+      id: string;
+      email: string;
+      iat: number;
+      exp: number;
+    };
+
+    req.userId = decoded.id as string;
+    console.log('userId:', req.userId);
     next();
   } catch (error) {
     console.error(error);
