@@ -39,12 +39,12 @@ const HomePage = () => {
             transition={{ delay: 0.5, duration: 0.8 }}
             className="flex flex-row gap-4 py-12"
           >
-            <Link href="/signin">
+            <Link href="/register">
               <Button variant="default" className="rounded-full" size={'lg'}>
                 Get Started
               </Button>
             </Link>
-            <Link href="">
+            <Link href="/login">
               <Button variant="outline" className="rounded-full" size={'lg'}>
                 Login
               </Button>

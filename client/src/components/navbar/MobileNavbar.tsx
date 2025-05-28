@@ -19,7 +19,7 @@ const MobileNavbar = () => {
 
   const navLinks = [
     { href: '/dashboard', title: 'Get Started' },
-    { href: '/signin', title: 'SignIn' },
+    { href: '/login', title: 'SignIn' },
     { href: '/upgrade', title: 'UpGrade' },
   ];
 
