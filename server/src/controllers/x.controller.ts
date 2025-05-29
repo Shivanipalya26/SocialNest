@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import axios from 'axios';
 import { X_API_KEY, X_API_KEY_SECRET } from '../config/config';
 import prisma from '../config/prisma.config';
+import { encryptToken } from '../utils/crypto';
 
 const oauth = new OAuth({
   consumer: {
@@ -35,7 +36,7 @@ export const requestToken = async (req: Request, res: Response): Promise<void> =
 
     console.log('response: ', response);
     const { oauth_token } = Object.fromEntries(new URLSearchParams(response.data));
-    res.json({ oauth_token });
+    res.redirect(`https://api.twitter.com/oauth/authenticate?oauth_token=${oauth_token}`);
   } catch (error) {
     console.error('Request token error: ', error);
     res.status(500).json({ error: 'Failed to get request token' });
@@ -110,6 +111,7 @@ export const accessToken = async (req: Request, res: Response) => {
 
     console.log('Oauth token:', accessToken);
     console.log('Oauth token secret:', accessTokenSecret);
+    console.log('user_id:', user_id);
 
     if (!accessToken || !accessTokenSecret || !user_id) {
       res.status(500).json({ message: 'Failed to get access token' });
@@ -124,7 +126,27 @@ export const accessToken = async (req: Request, res: Response) => {
       res.status(404).json({ msg: 'User not found' });
     }
 
-    const existingUserXAccount = existingUser?.accounts.find(account => account.provider === 'x');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const existingUserXAccount = existingUser?.accounts.find(
+      (account: any) => account.provider === 'x'
+    );
+
+    let encryptedAccessToken: string | undefined;
+    let encryptedAccessTokenSecret: string | undefined;
+    let accessTokenIv: string | undefined;
+    let accessTokenIvSecret: string | undefined;
+
+    if (accessToken) {
+      const { encrypted, iv } = encryptToken(accessToken);
+      encryptedAccessToken = encrypted;
+      accessTokenIv = iv;
+    }
+
+    if (accessTokenSecret) {
+      const { encrypted, iv } = encryptToken(accessTokenSecret);
+      encryptedAccessTokenSecret = encrypted;
+      accessTokenIvSecret = iv;
+    }
 
     if (existingUserXAccount) {
       await prisma.account.update({
@@ -135,8 +157,10 @@ export const accessToken = async (req: Request, res: Response) => {
           },
         },
         data: {
-          access_token: accessToken,
-          access_token_secret: accessTokenSecret,
+          access_token: encryptedAccessToken,
+          access_token_secret: encryptedAccessTokenSecret,
+          access_token_iv: accessTokenIv,
+          access_token_secret_iv: accessTokenIvSecret,
           updatedAt: new Date(),
         },
       });
@@ -146,8 +170,10 @@ export const accessToken = async (req: Request, res: Response) => {
           provider: 'x',
           providerAccountId: user_id,
           userId: loggedUserId,
-          access_token: accessToken,
-          access_token_secret: accessTokenSecret,
+          access_token: encryptedAccessToken,
+          access_token_secret: encryptedAccessTokenSecret,
+          access_token_iv: accessTokenIv,
+          access_token_secret_iv: accessTokenIvSecret,
           scope: 'tweet.read tweet.write users.read offline.access',
           type: 'oauth:1.0a',
         },
@@ -156,14 +182,6 @@ export const accessToken = async (req: Request, res: Response) => {
 
     console.log('message: Authentication successful');
     res.status(200).json({ msg: 'Successful' });
-
-    // res.status(200).json({
-    //   message: "Authentication successful",
-    //   access_token: tokenData.oauth_token,
-    //   access_token_secret: tokenData.oauth_token_secret,
-    //   user_id: tokenData.user_id,
-    //   screen_name: tokenData.screen_name
-    // });
   } catch (error) {
     console.error('Access token error:', error);
     res.status(500).json({ error: 'Failed to get access token' });

@@ -3,7 +3,7 @@ import { callback, postMedia, postText, redirect } from '../controllers/linkedin
 
 const linkedinRouter = express.Router();
 
-linkedinRouter.get('/', redirect);
+linkedinRouter.get('/request-token', redirect);
 
 linkedinRouter.get('/callback', callback);
 

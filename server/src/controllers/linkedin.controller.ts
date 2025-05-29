@@ -3,13 +3,19 @@ import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { LinkedinUtils } from '../utils/linkedinUtils/linkedinUtils';
+import prisma from '../config/prisma.config';
+import { encryptToken } from '../utils/crypto';
 
 const { LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET, LINKEDIN_REDIRECT_URI } = process.env;
 
 const SCOPE = 'openid profile email w_member_social';
 
 export const redirect = (req: Request, res: Response) => {
-  const state = crypto.randomUUID();
+  const { userId } = req.query;
+  const csrfToken = crypto.randomUUID();
+
+  const statePayload = JSON.stringify({ csrfToken, userId });
+  const state = Buffer.from(statePayload).toString('base64');
 
   res.cookie('linkedin_oauth_state', state, {
     httpOnly: true,
@@ -30,12 +36,16 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
   console.log(req.query.code as string);
   const code = req.query.code as string;
   const state = req.query.state as string;
+
+  const decodedState = JSON.parse(Buffer.from(state, 'base64').toString('utf-8'));
+  const { csrfToken, userId } = decodedState;
   const storedState = req.cookies.linkedin_oauth_state;
+  console.log('userId, csrfToken, storedState: ', userId, csrfToken, storedState);
 
-  if (!state || !storedState || state !== storedState) {
+  if (!csrfToken || !storedState || !userId) {
     res.status(403).json({ error: 'Invalid or missing state parameter' });
+    return;
   }
-
   try {
     const tokenResponse = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', null, {
       params: {
@@ -66,12 +76,64 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
 
     console.log('decode, ', decoded);
 
-    // res.json({
-    //   message: 'Authorized via LinkedIn OpenID!',
-    //   accessToken: access_token,
-    //   idToken: id_token,
-    //   userInfo: decoded,
-    // });
+    const { email, sub } = decoded;
+
+    if (!email || !sub) {
+      throw new Error('Missing email or sub (OpenID identifier) from ID token');
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { accounts: true },
+    });
+    console.log('user: ', existingUser);
+
+    if (!existingUser) {
+      res.status(404).json({ msg: 'User not found' });
+      return;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const existingUserLinkedinAccount = existingUser?.accounts.find(
+      (account: any) => account.provider === 'linkedin'
+    );
+
+    let encryptedAccessToken: string | undefined;
+    let accessTokenIv: string | undefined;
+
+    if (access_token) {
+      const { encrypted, iv } = encryptToken(access_token);
+      encryptedAccessToken = encrypted;
+      accessTokenIv = iv;
+    }
+
+    if (existingUserLinkedinAccount) {
+      await prisma.account.update({
+        where: {
+          provider_providerAccountId: {
+            provider: 'linkedin',
+            providerAccountId: sub,
+          },
+        },
+        data: {
+          access_token: encryptedAccessToken,
+          access_token_iv: accessTokenIv,
+          updatedAt: new Date(),
+        },
+      });
+    } else {
+      await prisma.account.create({
+        data: {
+          provider: 'linkedin',
+          providerAccountId: sub,
+          access_token: encryptedAccessToken,
+          access_token_iv: accessTokenIv,
+          scope: 'tweet.read tweet.write users.read offline.access',
+          type: 'oauth:2.0',
+          userId: userId,
+        },
+      });
+    }
 
     res.clearCookie('linkedin_oauth_state');
 
