@@ -9,15 +9,14 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { useState } from 'react';
-import api from '@/lib/axios';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/store/AuthStore/useAuthStore';
 
 type RegisterSchema = z.infer<typeof registerSchema>;
 
 const RegisterForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { isLoading, registerAccount } = useAuthStore();
 
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
@@ -29,17 +28,10 @@ const RegisterForm = () => {
   });
 
   const onSubmit = async (values: RegisterSchema) => {
-    try {
-      setIsLoading(true);
-      await api.post('/api/v1/auth/register', values);
-      toast.success('Registered Successfully!!');
+    await registerAccount(values, () => {
+      toast.success('Registered successfully!');
       router.push('/login');
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to create account. Please try again!');
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   return (

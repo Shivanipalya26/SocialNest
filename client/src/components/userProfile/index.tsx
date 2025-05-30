@@ -1,9 +1,9 @@
-import { useUser } from '@/context/UserContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { useAuthStore } from '@/store/AuthStore/useAuthStore';
 
 const UserProfile = () => {
-  const { user } = useUser();
+  const { user } = useAuthStore();
 
   if (!user) return null;
 

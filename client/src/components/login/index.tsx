@@ -3,23 +3,19 @@
 import { loginSchema } from '@/lib/validation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { toast } from 'sonner';
-import api from '@/lib/axios';
 import Link from 'next/link';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { useUser } from '@/context/UserContext';
+import { useAuthStore } from '@/store/AuthStore/useAuthStore';
 
 type LoginSchema = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { refetchUser } = useUser();
+  const { loginAccount, isLoading } = useAuthStore();
 
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -30,20 +26,9 @@ const LoginForm = () => {
   });
 
   const onSubmit = async (values: LoginSchema) => {
-    try {
-      setIsLoading(true);
-      await api.post('/api/v1/auth/login', values, {
-        withCredentials: true,
-      });
-      await refetchUser();
-      toast.success('Logged In!!');
+    await loginAccount(values, () => {
       router.push('/dashboard');
-    } catch (error) {
-      console.error(error);
-      toast.error('Invalid email or password');
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
   return (
     <div className="min-h-[calc(100vh-150px)] relative flex items-center justify-center p-4">

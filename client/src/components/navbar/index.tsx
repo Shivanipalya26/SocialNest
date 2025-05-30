@@ -1,18 +1,45 @@
+'use client';
+
 import Link from 'next/link';
 import React from 'react';
 import { Button } from '../ui/button';
 import MobileNavbar from './MobileNavbar';
+import LogoutButton from '../buttons/LogoutButton';
+import UserProfile from '../userProfile';
+import { useAuthStore } from '@/store/AuthStore/useAuthStore';
+
+const loggedNavBarItem = [
+  { title: 'DashBoard', href: '/dashboard' },
+  { title: 'Create', href: '/create' },
+  { title: 'Upgrade', href: '/upgrade' },
+];
 
 const NavBar = () => {
+  const { user } = useAuthStore();
+
   return (
     <header className="flex fixed p-4 z-40 w-full items-center justify-between mx-auto sm:px-6 backdrop-blur-lg border-b">
       <Link href="/">SocialNest</Link>
-      <div className="space-x-4 flex">
-        <Link href="/signin">
-          <Button variant={'default'} size={'sm'}>
-            SignIn
-          </Button>
-        </Link>
+      <div className="space-x-4 flex items-center">
+        {user ? (
+          <>
+            <div className="hidden md:flex gap-10 text-sm font-semibold items-center tracking-wide">
+              {loggedNavBarItem.map(item => (
+                <div className="hover:text-orange-400" key={item.title}>
+                  <Link href={item.href}>{item.title}</Link>
+                </div>
+              ))}
+            </div>
+            <UserProfile />
+            <LogoutButton />
+          </>
+        ) : (
+          <Link href="/login">
+            <Button variant={'default'} size={'sm'}>
+              SignIn
+            </Button>
+          </Link>
+        )}
         <Link href="/guide">
           <Button variant={'outline'} size={'sm'}>
             Guide
