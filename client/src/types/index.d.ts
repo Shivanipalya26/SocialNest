@@ -81,4 +81,14 @@ export interface TwitterUser {
   profile_background_color?: string;
 }
 
-export type Providers = 'twitter' | 'linkedin' | 'instagram' | 'threads';
+export type Providers = 'x' | 'linkedin' | 'instagram' | 'threads';
+
+export interface NotificationType {
+  id: number;
+  message: string;
+  type: 'POST_STATUS_PROCESSING' | 'POST_STATUS_SUCCESS' | 'POST_STATUS_FAILED' | 'SYSTEM_ALERT';
+  userId: string;
+  read: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
