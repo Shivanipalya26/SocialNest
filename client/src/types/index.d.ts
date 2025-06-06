@@ -99,3 +99,48 @@ export interface PostsResponse {
   FailedPosts: Post[];
   SuccessPosts: Post[];
 }
+
+export interface Plan {
+  id: string;
+  title: string;
+  price: number;
+  description: string;
+  features: string[];
+  cta: string;
+  razorpayPlanId?: string;
+  subscription: SubscriptionType[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface SubscriptionType {
+  id: string;
+  userId: string;
+  user: User;
+  planId: string;
+  plan: Plan;
+  razorpaySubscriptionId?: string;
+  status: string;
+  nextBillingAt?: Date;
+  payment: PaymentType[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PaymentType {
+  id: string;
+  userId: string;
+  user: User;
+  subscriptionId?: string;
+  subscription: SubscriptionType[];
+  order_id?: string;
+  paymentId?: string;
+  amount?: number;
+  status: STATUS;
+  paymentMethod?: string;
+  invoiceId?: string;
+  captured?: boolean;
+  description?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

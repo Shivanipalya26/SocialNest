@@ -17,6 +17,7 @@ import { Textarea } from '../ui/textarea';
 import { Check, Loader2 } from 'lucide-react';
 import { Label } from '../ui/label';
 import { Button } from '../ui/button';
+import { useRecentSubscription } from '@/hooks/useRecentSubscription';
 
 const EnhanceAndImageGen = ({
   caption,
@@ -32,6 +33,7 @@ const EnhanceAndImageGen = ({
   const [imageUrl, setImageUrl] = useState('');
 
   const { setMedias, handleFileUpload, medias } = useMediaStore();
+  const { subscriptionStatus, loading } = useRecentSubscription();
 
   const enhanceCaption = async (content: string) => {
     if (!content.trim()) return;
@@ -202,7 +204,9 @@ const EnhanceAndImageGen = ({
             <div className="gap-2 flex justify-end">
               <button
                 onClick={() => generateImage(caption.trim())}
-                disabled={!caption.trim() || isGenerating}
+                disabled={
+                  !caption.trim() || isGenerating || loading || subscriptionStatus !== 'active'
+                }
                 className="rounded-3xl px-3 py-1 border-[1.2px] tracking-wide border-neutral-500 text-neutral-300 hover:text-neutral-200 transition duration-200 text-xs group flex items-center gap-2 hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed "
               >
                 {isGenerating ? (

@@ -23,6 +23,7 @@ import { SimplePostPreview } from '../Previews/SimplePostPreview';
 import AIAssist from '../aiAssist';
 import EnhanceAndImageGen from '../enhance&ImageGen';
 import { useNotificationStore } from '@/store/NotificationStore/useNotificationStore';
+import { useSubscriptionStore } from '@/store/SubscriptionStore/useSubscription';
 
 export type Platform = 'x' | 'linkedin' | 'instagram' | 'threads';
 
@@ -44,6 +45,7 @@ const CreatePost = () => {
   const { fetchConnectedApps, connectedApps, isFetchingApps, hasFetched } = useDashboardStore();
   const { medias, isUploadingMedia, resetMedias } = useMediaStore();
   const { fetchNotifications, notifications } = useNotificationStore();
+  const { setCreditCount } = useSubscriptionStore();
 
   const memoizedMedia = useMemo(() => medias.files || [], [medias.files]);
 
@@ -178,6 +180,7 @@ const CreatePost = () => {
         setScheduleTime('');
       }
 
+      setCreditCount(Number(useSubscriptionStore.getState().creditCount) - 1);
       setIsPollingNotifications(true);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
