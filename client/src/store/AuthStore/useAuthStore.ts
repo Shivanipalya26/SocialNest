@@ -48,6 +48,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   loginAccount: async (props, onSuccess) => {
     set({ isLoading: true });
     try {
+      console.log('login started');
       await api.post('/api/v1/auth/login', props);
       await get().fetchUser(); // fetch user after login
       toast.success('Logged in!');

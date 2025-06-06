@@ -1,10 +1,9 @@
+import { Platform } from '@/components/createPost';
 import api from '@/lib/axios';
 import { getVideoDuration } from '@/utils/VideoDuration';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { create } from 'zustand';
-
-type Platform = 'x' | 'linkedin' | 'instagram' | 'threads';
 
 interface UploadProgress {
   fileName: string;
@@ -22,11 +21,11 @@ interface MediaStateProps {
   setMedias: (medias: { files: File[] | null; mediaKeys: string[] | null }) => void;
   resetMedias: () => void;
   handleFileUpload: (files: FileList | null, platforms: Platform[]) => Promise<void>;
-  // cancelUpload: (fileName: string) => void
-  // removeUpload: (fileName: string) => void
+  cancelUpload: (fileName: string) => void;
+  removeMedia: (fileName: string) => void;
 }
 
-export const useMediaStore = create<MediaStateProps>(set => ({
+export const useMediaStore = create<MediaStateProps>((set, get) => ({
   medias: {
     files: null,
     mediaKeys: null,
@@ -238,6 +237,7 @@ export const useMediaStore = create<MediaStateProps>(set => ({
               }));
             },
           });
+          console.log('uploadResponse', uploadResponse);
 
           if (!uploadResponse.status) {
             throw new Error(`Failed to upload ${file.name} to s3`);
@@ -275,5 +275,69 @@ export const useMediaStore = create<MediaStateProps>(set => ({
       });
     }
   },
-  // }
+
+  cancelUpload: async (fileName: string) => {
+    const { uploadProgress, medias } = get();
+
+    const progressItem = uploadProgress.find(item => item.fileName === fileName);
+
+    if (progressItem && progressItem.abortController) {
+      progressItem.abortController.abort(`Upload of ${fileName} canceled by user.`);
+    }
+
+    const updatedProgress = uploadProgress.filter(item => item.fileName !== fileName);
+    const isUploadingMedia = updatedProgress.length > 0;
+
+    const updatedFiles = (medias.files || []).filter(file => file.name !== fileName);
+    const updatedMediaKeys = (medias.mediaKeys || []).filter(
+      (_, index) => medias.files?.[index]?.name !== fileName
+    );
+
+    set({
+      uploadProgress: updatedProgress,
+      isUploadingMedia,
+      medias: {
+        files: updatedFiles.length > 0 ? updatedFiles : null,
+        mediaKeys: updatedMediaKeys.length > 0 ? updatedMediaKeys : null,
+      },
+    });
+
+    toast('Upload Canceled', {
+      description: `The upload of ${fileName} has been canceled.`,
+    });
+  },
+
+  removeMedia: async (fileName: string) => {
+    const { medias } = get();
+
+    const mediaKey = medias.mediaKeys?.find((_, index) => medias.files?.[index]?.name === fileName);
+    if (mediaKey) {
+      const updatedFiles = (medias.files || []).filter(file => file.name !== fileName);
+      const updatedMediaKeys = (medias.mediaKeys || []).filter(
+        (_, index) => medias.files?.[index]?.name === fileName
+      );
+
+      set({
+        medias: {
+          files: updatedFiles.length > 0 ? updatedFiles : null,
+          mediaKeys: updatedMediaKeys.length > 0 ? updatedMediaKeys : null,
+        },
+      });
+
+      toast('File Removed', {
+        description: `The file ${fileName} has been removed.`,
+      });
+
+      try {
+        await api.post(`/api/v1/media/delete`, {
+          mediaKey,
+        });
+      } catch (error) {
+        console.error(`Failed to delete ${fileName} from S3:`, error);
+        toast('S3 deletion failed', {
+          description: `The file ${fileName} was removed, but we couldn't delete it from S3.`,
+        });
+      }
+    }
+  },
 }));
