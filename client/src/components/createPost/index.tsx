@@ -40,7 +40,7 @@ const CreatePost = () => {
   const [isSinglePreview, setIsSinglePreview] = useState(true);
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduleDate, setScheduleDate] = useState<Date | null>(null);
-  const [scheduleTime, setScheduleTime] = useState<string>('');
+  const [scheduleTime, setScheduleTime] = useState<string | null>(null);
   const [isPollingNotifications, setIsPollingNotifications] = useState(false);
   const { fetchConnectedApps, connectedApps, isFetchingApps, hasFetched } = useDashboardStore();
   const { medias, isUploadingMedia, resetMedias } = useMediaStore();

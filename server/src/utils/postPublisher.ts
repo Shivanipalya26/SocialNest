@@ -49,7 +49,6 @@ export const postPublisher = async ({
       if (!xAccount.access_token_secret || !xAccount.access_token_secret_iv) {
         throw new Error('x access token secret not found.');
       }
-      console.log('x: ', xAccount);
 
       const decryptedAccessToken = decryptToken(xAccount.access_token, xAccount.access_token_iv);
 
@@ -90,7 +89,6 @@ export const postPublisher = async ({
       );
 
       const { providerAccountId } = linkedinAccount;
-      console.log('linkedin ', linkedinAccount);
 
       const postResponse = await postMediaToLinkedIn({
         caption: postText,
@@ -99,7 +97,9 @@ export const postPublisher = async ({
         mediaBuffers,
       });
 
-      console.log('postres:', postResponse);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(postResponse);
+      }
 
       await prisma.post.update({
         where: { id: postId },
@@ -111,8 +111,6 @@ export const postPublisher = async ({
       throw new Error(`Unsupported provider: ${provider}`);
     }
 
-    console.log('hello');
-
     const notifications = await prisma.notification.updateMany({
       where: {
         postId: postId,
@@ -123,7 +121,10 @@ export const postPublisher = async ({
         message: `Your post to ${provider} was successfully published.`,
       },
     });
-    console.log('Matching notifications:', notifications);
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log(notifications);
+    }
 
     return { provider, response: postResponse };
   } catch (error) {

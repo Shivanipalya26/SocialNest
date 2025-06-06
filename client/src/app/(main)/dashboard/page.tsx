@@ -9,7 +9,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [fetchUser]);
 
   return (
     <div className="p-8 pt-48">

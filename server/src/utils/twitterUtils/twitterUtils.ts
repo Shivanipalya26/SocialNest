@@ -70,7 +70,7 @@ export class TwitterClient {
     const res = await axios.get(url, {
       headers: { ...headers },
     });
-    console.log('Twitter user details fetched successfully');
+    // console.log('Twitter user details fetched successfully');
     return res.data;
   }
 

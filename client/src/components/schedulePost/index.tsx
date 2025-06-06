@@ -9,7 +9,7 @@ import { Input } from '../ui/input';
 interface SchedulePostProps {
   scheduleDate: Date | null;
   setScheduleDate: (date: Date | null) => void;
-  scheduleTime: string;
+  scheduleTime: string | null;
   setScheduleTime: (time: string | null) => void;
 }
 
@@ -47,7 +47,7 @@ const SchedulePost = ({
         <Clock className="h-4 w-4 text-muted-foreground" />
         <Input
           type="time"
-          value={scheduleTime}
+          value={scheduleTime ?? ''}
           onChange={e => setScheduleTime(e.target.value)}
           className="w-[120px]"
         />

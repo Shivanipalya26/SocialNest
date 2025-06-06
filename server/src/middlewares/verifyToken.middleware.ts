@@ -20,10 +20,11 @@ export const verifyToken = async (req: AuthRequest, res: Response, next: NextFun
     };
 
     req.userId = decoded.id as string;
-    console.log('userId:', req.userId);
     next();
   } catch (error) {
-    console.error(error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error(error);
+    }
     res.status(403).json({ error: 'Invalid token' });
   }
 };

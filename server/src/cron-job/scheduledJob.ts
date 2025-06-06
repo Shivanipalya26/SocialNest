@@ -26,9 +26,11 @@ cron.schedule('* * * * *', async () => {
         userId: post.userId,
         postId: post.id,
       });
-      console.log(`Posted: ${post.id}`);
+      // console.log(`Posted: ${post.id}`);
     } catch (err) {
-      console.error(`Failed to post ${post.id}:`, err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`Failed to post ${post.id}:`, err);
+      }
     }
   }
 });

@@ -35,11 +35,12 @@ export const requestToken = async (req: Request, res: Response): Promise<void> =
       headers: { Authorization: headers.Authorization },
     });
 
-    console.log('response: ', response);
     const { oauth_token } = Object.fromEntries(new URLSearchParams(response.data));
     res.redirect(`https://api.twitter.com/oauth/authenticate?oauth_token=${oauth_token}`);
   } catch (error) {
-    console.error('Request token error: ', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Request token error:', error);
+    }
     res.status(500).json({ error: 'Failed to get request token' });
   }
 };
@@ -62,16 +63,17 @@ export const callback = async (req: Request, res: Response) => {
   }
 
   try {
-    const response = await axios.post(`${process.env.SERVER_URL}/api/x/access-token`, {
+    await axios.post(`${process.env.SERVER_URL}/api/x/access-token`, {
       oauth_token,
       oauth_verifier,
       loggedUserId,
     });
 
-    console.log('Response data: ', response);
     return res.redirect(`${process.env.CLIENT_URL}/dashboard`);
   } catch (error) {
-    console.error('Callback error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Callback error:', error);
+    }
     return res.redirect(
       `${process.env.CLIENT_URL}/error?message=Failed to complete authentication`
     );
@@ -110,10 +112,6 @@ export const accessToken = async (req: Request, res: Response) => {
       // screen_name
     } = Object.fromEntries(new URLSearchParams(response.data));
 
-    console.log('Oauth token:', accessToken);
-    console.log('Oauth token secret:', accessTokenSecret);
-    console.log('user_id:', user_id);
-
     if (!accessToken || !accessTokenSecret || !user_id) {
       res.status(500).json({ message: 'Failed to get access token' });
     }
@@ -148,9 +146,6 @@ export const accessToken = async (req: Request, res: Response) => {
       encryptedAccessTokenSecret = encrypted;
       accessTokenIvSecret = iv;
     }
-
-    console.log('accessTokenIv:', accessTokenIv, accessTokenIv?.length);
-    console.log('accessTokenIvSecret:', accessTokenIvSecret, accessTokenIvSecret?.length);
 
     if (existingUserXAccount) {
       await prisma.account.update({
@@ -187,7 +182,9 @@ export const accessToken = async (req: Request, res: Response) => {
     console.log('message: Authentication successful');
     res.status(200).json({ msg: 'Successful' });
   } catch (error) {
-    console.error('Access token error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Access token error:', error);
+    }
     res.status(500).json({ error: 'Failed to get access token' });
   }
 };
@@ -240,12 +237,13 @@ export const getUserDetails = async (req: AuthRequest, res: Response): Promise<v
       },
     });
 
-    console.log('Twitter user details fetched successfully');
     res.status(200).json(response.data);
     return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.error('Failed to get Twitter user details:', error.response?.data || error.message);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Failed to get Twitter user details:', error.response?.data || error.message);
+    }
     res.status(500).json({ msg: 'Internal error: ', error });
   }
 };

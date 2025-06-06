@@ -44,7 +44,9 @@ export const generateCaption = async (req: Request, res: Response): Promise<void
         ],
       })
       .catch(error => {
-        console.error('Groq api error ', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Groq api error :', error);
+        }
         throw new Error('Failed to generate response form AI');
       });
 
@@ -57,7 +59,9 @@ export const generateCaption = async (req: Request, res: Response): Promise<void
     return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.error('Error in caption generation:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error in caption generation:', error);
+    }
 
     const errorResponse = error.message.includes('API key is missing')
       ? {
@@ -101,7 +105,7 @@ export const generateImage = async (req: AuthRequest, res: Response) => {
         }
       },
     });
-    console.log('img res ', result);
+    // console.log('img res ', result);
 
     if (result.data.images.length === 0) {
       res.status(500).json({ error: 'Image generation failed' });
@@ -116,7 +120,9 @@ export const generateImage = async (req: AuthRequest, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error generating image: ', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error generating image:', error);
+    }
     res.status(500).json({ error: 'Failed to generate image' });
   }
 };
@@ -160,7 +166,9 @@ export const enhanceCaption = async (req: Request, res: Response) => {
         ],
       })
       .catch(error => {
-        console.error('Groq API Error:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Groq API Error:', error);
+        }
         throw new Error('Failed to generate response from AI');
       });
 
@@ -172,7 +180,9 @@ export const enhanceCaption = async (req: Request, res: Response) => {
     res.status(200).json({ caption: cleanedCaption });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.error('Error in enhancing caption generation:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error in enhancing caption generation:', error);
+    }
 
     const errorResponse = error.message.includes('API key is missing')
       ? {

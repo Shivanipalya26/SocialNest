@@ -36,7 +36,7 @@ const LoginForm = () => {
         <div className="leading-none">
           <h1 className="md:text-4xl text-3xl">Login</h1>
           <p className="text-neutral-400 text-sm">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/register" replace className="text-blue-500 underline hover:text-blue-400">
               Register
             </Link>

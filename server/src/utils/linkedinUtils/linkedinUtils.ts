@@ -48,13 +48,10 @@ export class LinkedinUtils {
       }
     );
 
-    console.log('ress: ', res);
-
     const uploadUrl =
       res.data.value.uploadMechanism['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest']
         .uploadUrl;
     const assetURN = res.data.value.asset;
-    console.log('uploadUrl ', uploadUrl, assetURN);
     return { uploadUrl, assetURN };
   }
 
@@ -169,13 +166,12 @@ export class LinkedinUtils {
       },
     };
 
-    const res = await axios.post(`${this.linkedinApi}/ugcPosts`, payload, {
+    await axios.post(`${this.linkedinApi}/ugcPosts`, payload, {
       headers: {
         Authorization: `Bearer ${this.access_token}`,
         'Content-Type': 'application/json',
       },
     });
-    console.log('li res:', res);
     console.log('LinkedIn post with media published successfully');
   }
 }

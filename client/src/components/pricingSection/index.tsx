@@ -51,7 +51,7 @@ const Pricing = () => {
       <div className="relative z-10">
         <div className="text-center py-16">
           <h1 className="text-lg md:text-4xl">
-            &quot;We've got a <span className="text-orange-500">Perfect Plan</span> for Your
+            &quot;We&apos;ve got a <span className="text-orange-500">Perfect Plan</span> for Your
             Needs&quot;
           </h1>
           <h3 className="md:text-base  text-xs text-neutral-400">

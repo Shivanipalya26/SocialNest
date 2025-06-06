@@ -11,6 +11,7 @@ import './cron-job/scheduledJob';
 import notifyRouter from './routes/notification.routes';
 import mediaRouter from './routes/media.routes';
 import generateRouter from './routes/generate.routes';
+import paymentRouter from './routes/payment.routes';
 
 const app = express();
 
@@ -34,5 +35,6 @@ app.use('/api/linkedin', linkedinRouter);
 app.use('/api/v1/notification', notifyRouter);
 app.use('/api/v1/media', mediaRouter);
 app.use('/api/v1/generate', generateRouter);
+app.use('/api/v1/payment', paymentRouter);
 
 app.listen(PORT, () => console.log(`Server listening at Port: ${PORT}`));

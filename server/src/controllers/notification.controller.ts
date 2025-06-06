@@ -16,7 +16,6 @@ export const getAllNotification = async (req: AuthRequest, res: Response): Promi
       orderBy: { createdAt: 'desc' },
       take: 15,
     });
-    console.log('notif: ', notifications);
     res.status(200).json({ notifications });
   } catch (error) {
     console.error('Notification error: ', error);
@@ -42,7 +41,9 @@ export const updateNotification = async (req: AuthRequest, res: Response): Promi
 
     res.status(200).json({ notification });
   } catch (error) {
-    console.error('Notification error: ', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Notification error:', error);
+    }
     res.status(500).json({ error });
   }
 };
@@ -71,7 +72,9 @@ export const markAllNotificationsAsRead = async (
 
     res.status(200).json({ success: true, message: 'All notifications marked as read' });
   } catch (error) {
-    console.error('Notification error: ', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Notification error:', error);
+    }
     res.status(500).json({ error });
   }
 };
@@ -96,10 +99,11 @@ export const deleteNotification = async (req: AuthRequest, res: Response): Promi
       where: { id: parseInt(notificationId) },
     });
 
-    console.log('notification deleted');
     res.status(200).json({ success: true });
   } catch (error) {
-    console.error('Notification error: ', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Notification error:', error);
+    }
     res.status(500).json({ error });
     return;
   }
@@ -119,7 +123,9 @@ export const clearAllNotification = async (req: AuthRequest, res: Response): Pro
     });
     res.status(200).json({ success: true });
   } catch (error) {
-    console.error('Notification error: ', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Notification error:', error);
+    }
     res.status(500).json({ error });
     return;
   }

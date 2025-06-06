@@ -9,7 +9,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     fetchUser(); // Only runs once if cookie is valid
-  }, []);
+  }, [fetchUser]);
 
   return <>{children}</>;
 };

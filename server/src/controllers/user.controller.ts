@@ -24,7 +24,9 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
     }
     res.status(200).json({ user });
   } catch (error) {
-    console.error('Error fetching user:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error fetching user:', error);
+    }
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -112,8 +114,6 @@ export const getUser = async (req: AuthRequest, res: Response): Promise<void> =>
         };
       } = {};
 
-      console.log('User posts:', user.posts);
-
       user.posts.forEach(post => {
         const month = post.createdAt.toLocaleString('default', {
           month: 'short',
@@ -143,7 +143,9 @@ export const getUser = async (req: AuthRequest, res: Response): Promise<void> =>
     if (error instanceof Error) {
       res.status(500).json({ error: `Failed to fetch dashboard data: ${error.message}` });
     }
-    console.error('Error fetching user:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error fetching user:', error);
+    }
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -167,10 +169,11 @@ export const getConnectedApps = async (req: AuthRequest, res: Response): Promise
       },
     });
 
-    console.log('Connected Apps: ', connectedApps);
     res.status(200).json({ connectedApps });
   } catch (error) {
-    console.error('Error fetching connected apps, ', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error fetching connected apps:', error);
+    }
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -198,7 +201,9 @@ export const disconnectApps = async (req: AuthRequest, res: Response): Promise<v
     res.status(200).json({ message: 'Account disconnected successfully' });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.error('Disconnect error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Disconnect error:', error);
+    }
     res.status(500).json({ error: 'Failed to disconnect account' });
   }
 };
@@ -234,7 +239,9 @@ export const getPresignedUrl = async (req: AuthRequest, res: Response): Promise<
     res.status(200).json({ url: presignedUrl, key });
     return;
   } catch (error) {
-    console.error('Presign error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Presign error:', error);
+    }
     res.status(500).json({ error: 'Failed to generate presigned URL' });
     return;
   }

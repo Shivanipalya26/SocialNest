@@ -27,20 +27,17 @@ export const redirect = (req: Request, res: Response) => {
   const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${LINKEDIN_CLIENT_ID}&redirect_uri=${encodeURIComponent(
     LINKEDIN_REDIRECT_URI!
   )}&scope=${encodeURIComponent(SCOPE)}&state=${state}&prompt=consent`;
-  console.log(authUrl);
 
   res.redirect(authUrl);
 };
 
 export const callback = async (req: Request, res: Response): Promise<void> => {
-  console.log(req.query.code as string);
   const code = req.query.code as string;
   const state = req.query.state as string;
 
   const decodedState = JSON.parse(Buffer.from(state, 'base64').toString('utf-8'));
   const { csrfToken, userId } = decodedState;
   const storedState = req.cookies.linkedin_oauth_state;
-  console.log('userId, csrfToken, storedState: ', userId, csrfToken, storedState);
 
   if (!csrfToken || !storedState || !userId) {
     res.status(403).json({ error: 'Invalid or missing state parameter' });
@@ -62,9 +59,6 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
 
     const { access_token, id_token } = tokenResponse.data;
 
-    console.log('access token, ', access_token);
-    console.log('id_token', id_token);
-
     // Optional: Get LinkedIn user ID
     const decoded = jwt.decode(id_token) as {
       email?: string;
@@ -73,8 +67,6 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       [key: string]: any;
     };
-
-    console.log('decode, ', decoded);
 
     const { email, sub } = decoded;
 
@@ -86,15 +78,14 @@ export const callback = async (req: Request, res: Response): Promise<void> => {
       where: { id: userId },
       include: { accounts: true },
     });
-    console.log('user: ', existingUser);
 
     if (!existingUser) {
       res.status(404).json({ msg: 'User not found' });
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const existingUserLinkedinAccount = existingUser?.accounts.find(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (account: any) => account.provider === 'linkedin'
     );
 
@@ -158,7 +149,9 @@ export const postText = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({ message: 'Text post published successfully' });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
-    console.error(err);
+    if (process.env.NODE_ENV === 'development') {
+      console.error(err);
+    }
     res.status(500).json({ error: err.message });
   }
 };
@@ -184,7 +177,9 @@ export const postMedia = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({ message: 'Media post published successfully' });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
-    console.error(err);
+    if (process.env.NODE_ENV === 'development') {
+      console.error(err);
+    }
     res.status(500).json({ error: err.message });
   }
 };

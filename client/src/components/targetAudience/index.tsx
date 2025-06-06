@@ -36,8 +36,8 @@ const TargetAudience = () => {
         <div className="p-6">
           <div className="flex text-5xl text-center justify-center py-2">Made Just For You...</div>
           <p className="text-center text-muted-foreground">
-            Whether you're a solo creator, a busy marketer, or a growing brand — SocialNest is built
-            to simplify your content game.
+            Whether you&apos;re a solo creator, a busy marketer, or a growing brand — SocialNest is
+            built to simplify your content game.
           </p>
         </div>
 

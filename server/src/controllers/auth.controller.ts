@@ -29,11 +29,12 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
         password: hashedPassword,
       },
     });
-    console.log(user, 'registered successfully');
 
     res.status(200).json({ success: true, user });
   } catch (error) {
-    console.error('Register Error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Register error:', error);
+    }
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -78,7 +79,9 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
       token: token,
     });
   } catch (error) {
-    console.error('Login Error: ', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Login error:', error);
+    }
     res.status(500).json({ error: 'Internal server error' });
   }
 };

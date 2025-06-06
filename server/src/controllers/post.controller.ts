@@ -32,13 +32,6 @@ export const postController = async (req: AuthRequest, res: Response): Promise<v
 
     const { postText, providers, scheduleAt, mediaKeys } = fields;
 
-    console.log(
-      'posttext, providers, scheduleAt, media keys',
-      postText,
-      providers,
-      scheduleAt,
-      mediaKeys
-    );
     const parsedProviders = JSON.parse(providers || '[]');
     const parsedMediaKeys = JSON.parse(mediaKeys || '[]');
 
@@ -65,7 +58,6 @@ export const postController = async (req: AuthRequest, res: Response): Promise<v
             isScheduled: !!scheduleAt,
           },
         });
-        console.log('post', post.id, typeof post.id);
 
         if (!scheduleAt) {
           await postPublisher({
@@ -87,11 +79,12 @@ export const postController = async (req: AuthRequest, res: Response): Promise<v
         return post;
       })
     );
-    console.log('results', results);
     res.status(200).json({ msg: 'Post created', results });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.error('PostController Error:', error.message);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('PostController Error:', error);
+    }
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
@@ -158,7 +151,9 @@ export const getPostsController = async (req: AuthRequest, res: Response): Promi
     res.status(200).json(finalPosts);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.error('getPostsController Error:', error.message);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('getPostsController Error:', error.message);
+    }
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };

@@ -17,7 +17,6 @@ export const deleteMedia = async (req: AuthRequest, res: Response): Promise<void
   }
 
   try {
-    console.log('s3 key', mediaKey);
     await deleteFromS3Bucket(mediaKey);
     res.status(200).json({ message: 'Media deleted successfully' });
     return;
