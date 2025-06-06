@@ -11,6 +11,9 @@
     "dev": "tsc -b && node ./dist/server.js"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.810.0",
+    "@aws-sdk/s3-request-presigner": "^3.810.0",
+    "@fal-ai/client": "^1.5.0",
     "@prisma/client": "6.7.0",
     "axios": "^1.9.0",
     "bcryptjs": "^3.0.2",
@@ -19,7 +22,13 @@
     "crypto": "^1.0.1",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "express-formidable": "^1.2.0",
+    "file-type": "16",
+    "form-data": "^4.0.2",
+    "groq-sdk": "^0.23.0",
     "jsonwebtoken": "^9.0.2",
+    "mime-types": "^3.0.1",
+    "node-cron": "^4.1.0",
     "oauth-1.0a": "^2.2.6",
     "zod": "^3.24.4"
   },
@@ -27,8 +36,10 @@
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.1",
+    "@types/express-formidable": "^1.2.3",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/node": "^22.15.17",
+    "@types/mime-types": "^2.1.4",
+    "@types/node": "^22.15.18",
     "prisma": "^6.7.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"

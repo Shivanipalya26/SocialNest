@@ -41,6 +41,7 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
 export const login = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
+    console.log('email', email);
     const { success, error } = loginSchema.safeParse({ email, password });
 
     if (!success) {
