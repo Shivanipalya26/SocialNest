@@ -7,6 +7,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum POST_STATUS {
+  PENDING
+  FAILED
+  SUCCESS
+}
+
+enum NOTIFICATION_TYPE {
+  POST_STATUS_PROCESSING
+  POST_STATUS_SUCCESS
+  POST_STATUS_FAILED
+  SYSTEM_ALERT
+}
+
+enum STATUS {
+  SUCCESS
+  FAILED
+  PENDING
+  REFUNDED
+  CANCELLED
+  PAUSED
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -15,11 +37,15 @@ model User {
   emailVerified DateTime?
   image         String?
 
-  accounts Account[]
+  accounts       Account[]
+  posts          Post[]
+  notifications  Notification[]
+  subscriptions  Subscription[]
+  payments       Payment[]
+  generatedImage GeneratedImage[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  posts     Post[]
 }
 
 model Account {
@@ -44,12 +70,6 @@ model Account {
   @@id([provider, providerAccountId])
 }
 
-enum POST_STATUS {
-  PENDING
-  FAILED
-  SUCCESS
-}
-
 model Post {
   id           String      @unique @default(cuid())
   text         String?
@@ -63,4 +83,75 @@ model Post {
   updatedAt    DateTime    @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        Int               @id @default(autoincrement())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NOTIFICATION_TYPE
+  postId    String?
+  message   String
+  read      Boolean           @default(false)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+model GeneratedImage {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prompt    String?
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Plan {
+  id             String         @id @default(uuid())
+  title          String
+  price          Int
+  description    String
+  features       String[]
+  cta            String
+  razorpayPlanId String?        @unique
+  subscription   Subscription[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Subscription {
+  id                     String    @id @default(uuid())
+  userId                 String
+  user                   User      @relation(fields: [userId], references: [id])
+  plan                   Plan      @relation(fields: [planId], references: [id])
+  planId                 String
+  razorpaySubscriptionId String?
+  status                 String
+  nextBillingAt          DateTime?
+  payments               Payment[]
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id])
+  subscriptionId String?
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+  order_id  String?
+  paymentId String?
+  amount Int?
+  status STATUS
+  paymentMethod String?
+  invoiceId String?
+  captured Boolean? @default(false)
+  description String?
+  failureReason String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([paymentId])
+  @@index([subscriptionId])
 }
