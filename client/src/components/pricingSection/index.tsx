@@ -6,13 +6,18 @@ const localPricingPlan = [
     title: 'Standard',
     price: 0,
     description: 'Perfect for individuals managing personal accounts with basic needs.',
-    features: ['Connect only 2 platforms', '5 posts/month', 'Basic analytics', 'Community support'],
+    features: [
+      'Connect only 2 platforms',
+      '15 posts/month',
+      'Basic analytics',
+      'Community support',
+    ],
     cta: 'Get Started',
   },
   {
     id: '2',
     title: 'Pro',
-    price: 15,
+    price: 19,
     description:
       'Great for professionals managing multiple accounts and looking for advanced tools.',
     features: [
@@ -27,7 +32,7 @@ const localPricingPlan = [
   {
     id: '3',
     title: 'Premium',
-    price: 30,
+    price: 39,
     description: 'Ideal for businesses and teams requiring full flexibility and premium features.',
     features: [
       'Connect unlimited platforms',

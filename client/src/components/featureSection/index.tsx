@@ -67,8 +67,8 @@ const FeatureSection = () => {
   }, [timeSlots]);
   return (
     <section>
-      <div className="md:max-w-6xl mx-auto px-4 py-12 z-30 relative pt-28">
-        <div className="p-6">
+      <div className="md:max-w-6xl mx-auto px-4 py-12 z-30 relative md:pt-28">
+        <div className="px-6">
           <div className="flex text-5xl text-center justify-center py-2">why SocialNest?</div>
           <p className="text-sm text-center text-muted-foreground">No Hassle - Just one click!</p>
         </div>
