@@ -7,6 +7,7 @@ import authRouter from './routes/auth.routes';
 import xRouter from './routes/x.routes';
 import linkedinRouter from './routes/linkedin.routes';
 import postRouter from './routes/post.routes';
+import './cron-job/scheduledJob';
 import notifyRouter from './routes/notification.routes';
 import mediaRouter from './routes/media.routes';
 import generateRouter from './routes/generate.routes';
