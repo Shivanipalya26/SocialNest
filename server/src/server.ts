@@ -6,6 +6,7 @@ import userRouter from './routes/user.routes';
 import authRouter from './routes/auth.routes';
 import xRouter from './routes/x.routes';
 import linkedinRouter from './routes/linkedin.routes';
+import postRouter from './routes/post.routes';
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(
 
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/post', postRouter);
 app.use('/api/x', xRouter);
 app.use('/api/linkedin', linkedinRouter);
 

@@ -16,6 +16,9 @@ export function encryptToken(token: string): { encrypted: string; iv: string } {
 }
 
 export function decryptToken(encrypted: string, iv: string): string {
+  if (!iv || iv.length !== 32) {
+    throw new Error(`Invalid IV length: expected 32 hex chars, got ${iv?.length}`);
+  }
   const decipher = createDecipheriv(ALGORITHM, key, Buffer.from(iv, 'hex'));
   let decrypted = decipher.update(encrypted, 'hex', 'utf8');
   decrypted += decipher.final('utf8');

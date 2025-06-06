@@ -5,6 +5,7 @@ import axios from 'axios';
 import { X_API_KEY, X_API_KEY_SECRET } from '../config/config';
 import prisma from '../config/prisma.config';
 import { encryptToken } from '../utils/crypto';
+import { AuthRequest } from '../types';
 
 const oauth = new OAuth({
   consumer: {
@@ -126,8 +127,8 @@ export const accessToken = async (req: Request, res: Response) => {
       res.status(404).json({ msg: 'User not found' });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const existingUserXAccount = existingUser?.accounts.find(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (account: any) => account.provider === 'x'
     );
 
@@ -147,6 +148,9 @@ export const accessToken = async (req: Request, res: Response) => {
       encryptedAccessTokenSecret = encrypted;
       accessTokenIvSecret = iv;
     }
+
+    console.log('accessTokenIv:', accessTokenIv, accessTokenIv?.length);
+    console.log('accessTokenIvSecret:', accessTokenIvSecret, accessTokenIvSecret?.length);
 
     if (existingUserXAccount) {
       await prisma.account.update({
@@ -185,5 +189,63 @@ export const accessToken = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Access token error:', error);
     res.status(500).json({ error: 'Failed to get access token' });
+  }
+};
+
+export const getUserDetails = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { userId } = req.body;
+
+    const loggedUserId = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { accounts: true },
+    });
+
+    if (!loggedUserId) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const xAccount = loggedUserId.accounts.find((account: any) => account.provider === 'x');
+
+    if (!xAccount) {
+      res.status(400).json({ error: 'User not connected to x' });
+      return;
+    }
+
+    const { access_token, access_token_secret } = xAccount;
+
+    const requestData = {
+      url: 'https://api.twitter.com/1.1/account/verify_credentials.json',
+      method: 'GET',
+    };
+
+    const headers = oauth.toHeader(
+      oauth.authorize(
+        {
+          url: requestData.url,
+          method: requestData.method,
+        },
+        {
+          key: access_token!,
+          secret: access_token_secret!,
+        }
+      )
+    );
+
+    const response = await axios.get(requestData.url, {
+      headers: {
+        Authorization: headers.Authorization,
+      },
+    });
+
+    console.log('Twitter user details fetched successfully');
+    res.status(200).json(response.data);
+    return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.error('Failed to get Twitter user details:', error.response?.data || error.message);
+    res.status(500).json({ msg: 'Internal error: ', error });
   }
 };

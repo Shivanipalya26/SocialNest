@@ -1,165 +1,179 @@
 import axios from 'axios';
-import { getTwitterOAuthHeader } from './twitterOAuth';
 import FormData from 'form-data';
+import { getTwitterOAuthHeader } from './twitterOAuth';
+import { getFileType } from '../getFileType';
 
-export const uploadMediaSimple = async (
-  buffer: Buffer,
-  accessToken: string,
-  accessTokenSecret: string
-): Promise<string> => {
-  const url = 'https://upload.twitter.com/1.1/media/upload.json';
-  const data = { media_data: buffer.toString('base64') };
+export class TwitterClient {
+  constructor(
+    private accessToken: string,
+    private accessTokenSecret: string
+  ) {}
 
-  const headers = getTwitterOAuthHeader(
-    url,
-    'POST',
-    { key: accessToken, secret: accessTokenSecret },
-    data
-  );
+  private getOAuthHeader(url: string, method: 'POST' | 'GET', data?: Record<string, string>) {
+    return getTwitterOAuthHeader(
+      url,
+      method,
+      {
+        key: this.accessToken,
+        secret: this.accessTokenSecret,
+      },
+      data
+    );
+  }
 
-  const response = await axios.post(url, new URLSearchParams(data), {
-    headers: {
-      ...headers,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  });
-  console.log('Uploaded Media: ', response.data);
-  return response.data.media_id_string;
-};
+  async postTweet(text: string, mediaIds?: string[]) {
+    const url = 'https://api.twitter.com/2/tweets';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const payload: any = { text };
+    if (mediaIds?.length) {
+      payload.media = { media_ids: mediaIds };
+    }
 
-export const uploadMediaChunked = async (
-  buffer: Buffer,
-  contentType: string,
-  accessToken: string,
-  accessTokenSecret: string
-): Promise<string> => {
-  const totalBytes = buffer.length;
-  const initUrl = 'https://upload.twitter.com/1.1/media/upload.json';
-  const initData = {
-    command: 'INIT',
-    total_bytes: totalBytes.toString(),
-    media_type: contentType,
-  };
-
-  const initHeaders = getTwitterOAuthHeader(
-    initUrl,
-    'POST',
-    { key: accessToken, secret: accessTokenSecret },
-    initData
-  );
-  console.log('init headers:', initHeaders);
-
-  const initRes = await axios.post(initUrl, new URLSearchParams(initData), {
-    headers: {
-      ...initHeaders,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  });
-
-  console.log('init Resp:', initRes);
-
-  const mediaId = initRes.data.media_id_string;
-
-  const chunkSize = 5 * 1024 * 1024;
-  for (let i = 0; i < buffer.length; i += chunkSize) {
-    const chunk = buffer.slice(i, i + chunkSize);
-    console.log('chunk: ', chunk);
-
-    const form = new FormData();
-    form.append('command', 'APPEND');
-    form.append('media_id', mediaId);
-    form.append('segment_index', String(i / chunkSize));
-    form.append('media', chunk, {
-      filename: 'chunk.mp4',
-      contentType: contentType,
-    });
-
-    console.log('append data: ', form);
-
-    const appendHeaders = getTwitterOAuthHeader(initUrl, 'POST', {
-      key: accessToken,
-      secret: accessTokenSecret,
-    });
-
-    console.log('append headers', appendHeaders);
-
-    const response = await axios.post(initUrl, form, {
+    const headers = this.getOAuthHeader(url, 'POST');
+    const res = await axios.post(url, payload, {
       headers: {
-        ...appendHeaders,
-        ...form.getHeaders(),
+        ...headers,
+        'Content-Type': 'application/json',
       },
     });
-    console.log('append response: ', response);
+
+    return res.data;
   }
 
-  const finalizeData = {
-    command: 'FINALIZE',
-    media_id: mediaId,
-  };
+  async uploadMedia(buffers: Buffer[]): Promise<string[]> {
+    const mediaIds: string[] = [];
 
-  const finalizeHeaders = getTwitterOAuthHeader(
-    initUrl,
-    'POST',
-    { key: accessToken, secret: accessTokenSecret },
-    finalizeData
-  );
+    // const mediaTypes = await Promise.all(
+    //   buffers.map((b) => getTwitterFileType(b))
+    // );
 
-  console.log('finalise: ', finalizeHeaders);
+    for (let i = 0; i < buffers.length; i++) {
+      const buffer = buffers[i];
+      // const mediaType = mediaTypes[i];
+      const contentType = await getFileType(buffer);
 
-  const finalizeRes = await axios.post(initUrl, new URLSearchParams(finalizeData), {
-    headers: {
-      ...finalizeHeaders,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  });
+      const mediaId =
+        buffer.length <= 5 * 1024 * 1024
+          ? await this.uploadSimple(buffer)
+          : await this.uploadChunked(buffer, contentType);
 
-  console.log('finalize response: ', finalizeRes);
+      mediaIds.push(mediaId);
+    }
 
-  if (finalizeRes.data.processing_info) {
-    await waitForProcessingCompletion(mediaId, accessToken, accessTokenSecret);
+    return mediaIds;
   }
 
-  return mediaId;
-};
+  async getTwitterUserDetails() {
+    const url = 'https://api.twitter.com/1.1/account/verify_credentials.json';
 
-const waitForProcessingCompletion = async (
-  mediaId: string,
-  accessToken: string,
-  accessTokenSecret: string
-): Promise<void> => {
-  const statusUrl = 'https://upload.twitter.com/1.1/media/upload.json';
-  const token = {
-    key: accessToken,
-    secret: accessTokenSecret,
-  };
+    const headers = this.getOAuthHeader(url, 'GET');
+    const res = await axios.get(url, {
+      headers: { ...headers },
+    });
+    console.log('Twitter user details fetched successfully');
+    return res.data;
+  }
 
-  while (true) {
-    const params = {
-      command: 'STATUS',
+  private async uploadSimple(buffer: Buffer): Promise<string> {
+    const url = 'https://upload.twitter.com/1.1/media/upload.json';
+    const data = { media_data: buffer.toString('base64') };
+
+    const headers = this.getOAuthHeader(url, 'POST', data);
+
+    const res = await axios.post(url, new URLSearchParams(data), {
+      headers: {
+        ...headers,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
+    return res.data.media_id_string;
+  }
+
+  private async uploadChunked(buffer: Buffer, contentType: string): Promise<string> {
+    const url = 'https://upload.twitter.com/1.1/media/upload.json';
+
+    const initData = {
+      command: 'INIT',
+      total_bytes: buffer.length.toString(),
+      media_type: contentType,
+    };
+
+    const initHeaders = this.getOAuthHeader(url, 'POST', initData);
+    const initRes = await axios.post(url, new URLSearchParams(initData), {
+      headers: {
+        ...initHeaders,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
+    const mediaId = initRes.data.media_id_string;
+    const chunkSize = 5 * 1024 * 1024;
+
+    for (let i = 0; i < buffer.length; i += chunkSize) {
+      const chunk = buffer.slice(i, i + chunkSize);
+      const form = new FormData();
+      form.append('command', 'APPEND');
+      form.append('media_id', mediaId);
+      form.append('segment_index', String(i / chunkSize));
+      form.append('media', chunk, {
+        filename: 'chunk.mp4',
+        contentType,
+      });
+
+      const headers = this.getOAuthHeader(url, 'POST');
+
+      await axios.post(url, form, {
+        headers: {
+          ...headers,
+          ...form.getHeaders(),
+        },
+      });
+    }
+
+    const finalizeData = {
+      command: 'FINALIZE',
       media_id: mediaId,
     };
 
-    const statusHeaders = getTwitterOAuthHeader(statusUrl, 'GET', token, params);
+    const finalizeHeaders = this.getOAuthHeader(url, 'POST', finalizeData);
 
-    const response = await axios.get(statusUrl, {
-      params,
+    const finalizeRes = await axios.post(url, new URLSearchParams(finalizeData), {
       headers: {
-        ...statusHeaders,
+        ...finalizeHeaders,
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
     });
 
-    const processingInfo = response.data.processing_info;
-    if (!processingInfo || processingInfo.state === 'succeeded') {
-      console.log('Media processing complete');
-      break;
+    if (finalizeRes.data.processing_info) {
+      await this.waitForProcessing(mediaId);
     }
 
-    if (processingInfo.state === 'failed') {
-      throw new Error('Media processing failed');
-    }
-
-    const waitTime = processingInfo.check_after_secs || 1;
-    console.log(`Waiting ${waitTime} seconds before next status check...`);
-    await new Promise(resolve => setTimeout(resolve, waitTime * 1000));
+    return mediaId;
   }
-};
+
+  private async waitForProcessing(mediaId: string): Promise<void> {
+    const url = 'https://upload.twitter.com/1.1/media/upload.json';
+    while (true) {
+      const params = {
+        command: 'STATUS',
+        media_id: mediaId,
+      };
+
+      const headers = this.getOAuthHeader(url, 'GET', params);
+
+      const res = await axios.get(url, {
+        params,
+        headers: {
+          ...headers,
+        },
+      });
+
+      const info = res.data.processing_info;
+      if (!info || info.state === 'succeeded') break;
+      if (info.state === 'failed') throw new Error('Media processing failed');
+
+      await new Promise(r => setTimeout(r, (info.check_after_secs || 1) * 1000));
+    }
+  }
+}
