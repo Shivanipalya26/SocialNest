@@ -5,8 +5,9 @@ import React from 'react';
 import { Button } from '../ui/button';
 import MobileNavbar from './MobileNavbar';
 import LogoutButton from '../buttons/LogoutButton';
-import UserProfile from '../userProfile';
 import { useAuthStore } from '@/store/AuthStore/useAuthStore';
+import NotificationBell from '../notificationBell';
+import { Profile } from '../profile';
 
 const loggedNavBarItem = [
   { title: 'DashBoard', href: '/dashboard' },
@@ -23,14 +24,16 @@ const NavBar = () => {
       <div className="space-x-4 flex items-center">
         {user ? (
           <>
-            <div className="hidden md:flex gap-10 text-sm font-semibold items-center tracking-wide">
+            <div className="hidden lg:flex gap-10 text-sm font-semibold items-center tracking-wide">
               {loggedNavBarItem.map(item => (
                 <div className="hover:text-orange-400" key={item.title}>
                   <Link href={item.href}>{item.title}</Link>
                 </div>
               ))}
+              <NotificationBell />
             </div>
-            <UserProfile />
+
+            <Profile />
             <LogoutButton />
           </>
         ) : (

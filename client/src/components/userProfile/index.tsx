@@ -18,7 +18,7 @@ const UserProfile = () => {
                 {user.name ? user.name[0] : 'SN'}
               </AvatarFallback>
             </Avatar>
-            <div>
+            <div className="hidden md:block">
               <p className="text-base text-start leading-none">{user.name || 'SocailNest'}</p>
               <p className="text-xs text-neutral-300">{user.email || 'socialnest@gamil.com'}</p>
             </div>

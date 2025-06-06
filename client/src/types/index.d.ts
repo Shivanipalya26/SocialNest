@@ -92,3 +92,10 @@ export interface NotificationType {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface PostsResponse {
+  ScheduledPosts: Post[];
+  PendingPosts: Post[];
+  FailedPosts: Post[];
+  SuccessPosts: Post[];
+}
