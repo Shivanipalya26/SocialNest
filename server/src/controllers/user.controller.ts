@@ -61,6 +61,8 @@ export const getUser = async (req: AuthRequest, res: Response): Promise<void> =>
       },
     });
 
+    console.log('user: ', user);
+
     if (!user) {
       res.status(404).json({ error: 'user not found' });
       return;
