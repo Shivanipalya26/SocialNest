@@ -11,6 +11,7 @@ const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
 async function verifyJWT(token: string) {
   try {
     const { payload } = await jwtVerify(token, secret);
+    console.log(payload);
     return payload;
   } catch (err) {
     console.error('JWT verification failed:', err);
@@ -48,9 +49,9 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (pathname !== '/') {
-    return NextResponse.redirect(new URL('/', request.url));
-  }
+  // if (pathname !== '/') {
+  //   return NextResponse.redirect(new URL('/', request.url));
+  // }
 
   return NextResponse.next();
 }
