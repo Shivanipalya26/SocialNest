@@ -22,6 +22,7 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
       res.status(404).json({ error: 'user not found' });
       return;
     }
+    console.log('User1: ', user);
     res.status(200).json({ user });
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
