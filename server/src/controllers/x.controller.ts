@@ -20,7 +20,7 @@ const oauth = new OAuth({
 
 export const requestToken = async (req: Request, res: Response): Promise<void> => {
   const { userId } = req.query;
-  const callback = `http://localhost:5000/api/x/callback?loggedUserId=${userId}`;
+  const callback = `https://server.shivanipalya.tech/api/x/callback?loggedUserId=${userId}`;
 
   const requestData = {
     url: 'https://api.x.com/oauth/request_token',
