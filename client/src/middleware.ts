@@ -43,7 +43,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     } else {
       const response = NextResponse.redirect(new URL('/login', request.url));
-      response.cookies.delete('token');
+      // response.cookies.delete('token');
       return response;
     }
   }
