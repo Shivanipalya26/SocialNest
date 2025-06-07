@@ -42,7 +42,7 @@ const ConnectAccounts = () => {
       const userId = user?.id;
       console.log('userId', userId);
 
-      window.location.href = `http://localhost:5000/api/${app.provider}/request-token?userId=${userId}`;
+      window.location.href = `https://server.shivanipalya.tech/api/${app.provider}/request-token?userId=${userId}`;
     } catch (error) {
       console.log(error);
       toast.error('An unexpected error occurred');
