@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
 export const config = {
-  matcher: ['/', '/dashboard/:path*', '/protected-route/:path*'],
+  matcher: ['/', '/dashboard/:path*', '/create/:path*'],
 };
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
@@ -11,7 +11,6 @@ const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
 async function verifyJWT(token: string) {
   try {
     const { payload } = await jwtVerify(token, secret);
-    console.log(payload);
     return payload;
   } catch (err) {
     console.error('JWT verification failed:', err);
@@ -21,14 +20,14 @@ async function verifyJWT(token: string) {
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
-  console.log(token);
   const { pathname } = request.nextUrl;
 
   const isPublic =
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname === '/login' ||
-    pathname === '/register';
+    pathname === '/register' ||
+    pathname === '/';
 
   if (isPublic) {
     return NextResponse.next();
@@ -49,9 +48,5 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // if (pathname !== '/') {
-  //   return NextResponse.redirect(new URL('/', request.url));
-  // }
-
-  return NextResponse.next();
+  return NextResponse.redirect(new URL('/login', request.url));
 }

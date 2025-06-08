@@ -37,10 +37,7 @@ const ContentPreview = memo(({ content }: { content: string }) => {
 });
 ContentPreview.displayName = 'ContentPreview';
 
-// Separate component for rendering media because at every keystroke in the editor, the entire SimplePostPreview component re-renders, causing blinking in the carousel.
 const MediaPreview = memo(({ medias }: { medias: File[] }) => {
-  console.log('rendering MediaPreview');
-
   return medias.length > 0 ? (
     <Carousel className="w-full max-w-xs mx-auto">
       <CarouselContent>

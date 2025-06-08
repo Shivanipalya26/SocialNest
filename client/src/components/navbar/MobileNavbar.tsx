@@ -7,7 +7,7 @@ import { useAuthStore } from '@/store/AuthStore/useAuthStore';
 import UserProfile from '../userProfile';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import LogoutButton from '../buttons/LogoutButton';
+import LogoutButton from '../Buttons/LogoutButton';
 
 const MobileNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);

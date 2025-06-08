@@ -20,14 +20,7 @@ export const useNotificationStore = create<NotificationProps>(set => ({
     set({ isFetchingNotification: true });
     try {
       const response = await api.get('/api/v1/notification/');
-      console.log(response);
-      set(state => {
-        console.log('Previous notifications:', state.notifications);
-        console.log('New notifications:', response.data.notifications);
-
-        // Return new notifications (replace, not mutate)
-        return { notifications: [...response.data.notifications] };
-      });
+      set({ notifications: response.data.notifications });
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
     } finally {

@@ -47,8 +47,6 @@ export const useDashboardStore = create<DashboardStoreProps>((set, get) => ({
       const response = await api.get('/api/v1/user/apps');
       const data = response.data;
 
-      console.log('apps: ', data);
-
       set({ connectedApps: data.connectedApps, isFetchingApps: false, hasFetched: true });
     } catch (error) {
       console.error('Fetch Connected Apps Error ', error);
@@ -61,7 +59,6 @@ export const useDashboardStore = create<DashboardStoreProps>((set, get) => ({
     try {
       const response = await api.get('/api/v1/user/dashboard');
       const data = response.data.dashboardData;
-      console.log('data: ', data);
 
       set({ dashboardData: data, isFetchingDashboardData: false });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -85,7 +82,6 @@ export const useDashboardStore = create<DashboardStoreProps>((set, get) => ({
       }).toString();
 
       const response = await api.get(`api/v1/post?${query}`);
-      console.log('res:', response);
       set({ userPosts: response.data });
     } catch (error) {
       console.error('Fetch posts failed:', error);

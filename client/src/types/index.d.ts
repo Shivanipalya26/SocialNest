@@ -144,3 +144,19 @@ export interface PaymentType {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type Site = {
+  title: string;
+  description: string;
+  keywords: string[];
+  origin: string;
+  og: string;
+  creator: {
+    name: string;
+    url: string;
+  };
+  socials: {
+    x: string;
+    github: string;
+  };
+};

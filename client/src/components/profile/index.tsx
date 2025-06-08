@@ -8,7 +8,7 @@ import { X } from 'lucide-react';
 import { Drawer, DrawerClose, DrawerContent, DrawerTrigger } from '../ui/drawer';
 import UserProfile from '../userProfile';
 import { Bar, BarChart, Legend, Tooltip, XAxis, YAxis } from 'recharts';
-import LogoutButton from '../buttons/LogoutButton';
+import LogoutButton from '../Buttons/LogoutButton';
 import { ScrollArea } from '../ui/scroll-area';
 import { ChartContainer } from '../ui/chart';
 import XUserDetails from '../xUserDetails';

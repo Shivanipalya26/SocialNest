@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Textarea } from '../ui/textarea';
 import { useDashboardStore } from '@/store/DashboardStore/useDashboardStore';
 import BottomLoader from '@/loaders/BottomLoaders';
-import NoAppButton from '../buttons/NoAppButton';
+import NoAppButton from '../Buttons/NoAppButton';
 import PlatformSelector from '../platformSelector';
 import { Checkbox } from '../ui/checkbox';
 import SchedulePost from '../schedulePost';

@@ -132,6 +132,7 @@ export const getSubscriptionDetails = async (req: AuthRequest, res: Response): P
 
     if (!subscription) {
       res.status(400).json({ status: 'none' });
+      return;
     }
 
     res.status(200).json({ status: subscription?.status, subscription: subscription });

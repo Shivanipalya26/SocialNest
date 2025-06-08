@@ -46,8 +46,8 @@ export default function RefundCancellationPage() {
 
         <h2 className="text-2xl font-semibold mt-8 mb-4">Contact for Cancellation Requests</h2>
         <p className="mb-6">
-          If you have any questions regarding cancellations, please contact us at:
-          <span className="font-medium">shivanipalya6201@gmail.com</span>
+          If you have any questions regarding cancellations, please contact us at :
+          <span className="font-medium"> shivanipalya6201@gmail.com</span>
         </p>
 
         <div className="mt-10 border-t pt-6">

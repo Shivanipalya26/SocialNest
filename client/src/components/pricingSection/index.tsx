@@ -1,49 +1,5 @@
+import { localPricingPlan } from '@/data/pricing';
 import PricingCard from '../pricingCard';
-
-const localPricingPlan = [
-  {
-    id: '1',
-    title: 'Standard',
-    price: 0,
-    description: 'Perfect for individuals managing personal accounts with basic needs.',
-    features: [
-      'Connect only 2 platforms',
-      '15 posts/month',
-      'Basic analytics',
-      'Community support',
-    ],
-    cta: 'Get Started',
-  },
-  {
-    id: '2',
-    title: 'Pro',
-    price: 19,
-    description:
-      'Great for professionals managing multiple accounts and looking for advanced tools.',
-    features: [
-      'Connect up to 5 platforms',
-      'Unlimited posts',
-      'Advanced analytics',
-      'Priority support',
-      'Scheduling posts',
-    ],
-    cta: 'Upgrade to Pro',
-  },
-  {
-    id: '3',
-    title: 'Premium',
-    price: 39,
-    description: 'Ideal for businesses and teams requiring full flexibility and premium features.',
-    features: [
-      'Connect unlimited platforms',
-      'Unlimited posts and scheduling',
-      'Team collaboration',
-      'Premium support',
-      'Custom branding',
-    ],
-    cta: 'Go Premium',
-  },
-];
 
 const Pricing = () => {
   return (
@@ -65,7 +21,7 @@ const Pricing = () => {
               planId={plan.id}
               {...plan}
               price={Number(plan.price)}
-              className={`${plan.title === 'Pro' && 'md:scale-110 bg-orange-950 border-orange-950/20'}`}
+              className={`${plan.title === 'Pro' && 'md:scale-110 bg-gradient-to-bl from-orange-700 via-orange-900 to-orange-950 border-orange-950/20'}`}
             />
           ))}
         </div>

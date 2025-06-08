@@ -4,10 +4,11 @@ import Link from 'next/link';
 import React from 'react';
 import { Button } from '../ui/button';
 import MobileNavbar from './MobileNavbar';
-import LogoutButton from '../buttons/LogoutButton';
+import LogoutButton from '../Buttons/LogoutButton';
 import { useAuthStore } from '@/store/AuthStore/useAuthStore';
 import NotificationBell from '../notificationBell';
 import { Profile } from '../profile';
+import Image from 'next/image';
 
 const loggedNavBarItem = [
   { title: 'DashBoard', href: '/dashboard' },
@@ -20,7 +21,10 @@ const NavBar = () => {
 
   return (
     <header className="flex fixed p-4 z-40 w-full items-center justify-between mx-auto sm:px-6 backdrop-blur-lg border-b">
-      <Link href="/">SocialNest</Link>
+      <Link href="/" className="flex items-center gap-2">
+        <Image src="/logo.png" alt="logo" width={30} height={30} />
+        <span className="text-lg font-semibold tracking-wide">SocialNest</span>
+      </Link>
       <div className="space-x-4 flex items-center">
         {user ? (
           <>

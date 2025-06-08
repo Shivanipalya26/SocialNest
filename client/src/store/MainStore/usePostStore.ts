@@ -220,7 +220,6 @@ export const useMediaStore = create<MediaStateProps>((set, get) => ({
           if (!response) {
             throw new Error(`Failed to get presigned URL for ${file.name}`);
           }
-          console.log('s3:', response.data);
 
           const { url, key } = response.data;
           const uploadResponse = await axios.put(url, file, {
@@ -237,7 +236,6 @@ export const useMediaStore = create<MediaStateProps>((set, get) => ({
               }));
             },
           });
-          console.log('uploadResponse', uploadResponse);
 
           if (!uploadResponse.status) {
             throw new Error(`Failed to upload ${file.name} to s3`);

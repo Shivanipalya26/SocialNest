@@ -48,7 +48,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   loginAccount: async (props, onSuccess) => {
     set({ isLoading: true });
     try {
-      console.log('login started');
       await api.post('/api/v1/auth/login', props);
       await get().fetchUser(); // fetch user after login
       toast.success('Logged in!');
@@ -77,7 +76,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       const { data } = await api.get('/api/v1/user/me');
       set({ user: data.user });
-      console.log('user: ', data.user);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error('Fetch User Error: ', error);

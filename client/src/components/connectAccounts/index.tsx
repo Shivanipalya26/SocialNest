@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
-import { IconLoader } from '@tabler/icons-react';
+import { IconLoader, IconLockFilled } from '@tabler/icons-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
@@ -40,7 +40,6 @@ const ConnectAccounts = () => {
     setLoading(app.provider);
     try {
       const userId = user?.id;
-      console.log('userId', userId);
 
       window.location.href = `https://server.shivanipalya.tech/api/${app.provider}/request-token?userId=${userId}`;
     } catch (error) {
@@ -67,17 +66,15 @@ const ConnectAccounts = () => {
                 <div
                   key={app.provider}
                   className="flex relative items-center overflow-hidden justify-between w-full border rounded-xl p-3 hover:bg-secondary/80 transition-colors"
-                  onMouseEnter={() => setHoveredApp(app.provider)} // Track hover start
+                  onMouseEnter={() => setHoveredApp(app.provider)}
                   onMouseLeave={() => setHoveredApp(null)}
                 >
-                  {/* {(app.provider === "instagram" || app.provider === "threads")  && (
-                    <div className="absolute inset-0 bg-secondary/95 flex items-center justify-center z-10">
-                      <h2 className="font-ClashDisplayMedium md:text-base text-sm">
-                        Coming Soon...
-                      </h2>
-                      <IconLockFilled className="h-5 w-5 ml-2" />
+                  {(app.provider === 'instagram' || app.provider === 'threads') && (
+                    <div className="absolute inset-0 bg-secondary/90 flex items-center justify-center z-10">
+                      <h2 className="md:text-base text-sm">Coming Soon...</h2>
+                      <IconLockFilled className="ml-2 h-5 w-5" />
                     </div>
-                )} */}
+                  )}
                   <div className="flex items-center space-x-4">
                     <Image
                       height={45}

@@ -5,11 +5,11 @@ import {
   IconAi,
   IconBellRinging2,
   IconClockHour10,
-  IconCode,
   IconCoinRupeeFilled,
   IconLayoutDashboardFilled,
   IconPassword,
-  IconPhotoEdit,
+  IconPhotoScan,
+  IconWand,
 } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 
@@ -21,16 +21,6 @@ const About = () => {
       description: 'Generate captions for your posts with AI.',
     },
     {
-      icon: <IconPhotoEdit />,
-      title: 'Inbuilt Image Editor',
-      description: 'Edit images within the platform.',
-    },
-    {
-      icon: <IconCode />,
-      title: 'Code-to-Image Converter',
-      description: 'Convert code snippets into images.',
-    },
-    {
       icon: <IconLayoutDashboardFilled />,
       title: 'Analytics',
       description: 'Track your post performance with analytics.',
@@ -38,8 +28,7 @@ const About = () => {
     {
       icon: <IconPassword />,
       title: 'Security',
-      description:
-        'Secure login and integrations with social media platforms to keep your accounts safe.',
+      description: 'Secure authentication and protected integrations to keep your data safe.',
     },
     {
       icon: <IconCoinRupeeFilled />,
@@ -55,6 +44,16 @@ const About = () => {
       icon: <IconClockHour10 />,
       title: 'Scheduling',
       description: 'Schedule posts for the future.',
+    },
+    {
+      icon: <IconPhotoScan />,
+      title: 'Image Generation',
+      description: 'Automatically generate engaging images to pair with your posts.',
+    },
+    {
+      icon: <IconWand />,
+      title: 'Caption Enhancer',
+      description: 'Enhance your post captions using AI to boost engagement.',
     },
   ];
   return (

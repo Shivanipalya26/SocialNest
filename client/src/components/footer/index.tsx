@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowUp } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
@@ -15,10 +16,13 @@ const Footer = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   return (
-    <footer className="w-full md:mt-30 mt-20 border-t py-10 px-6 bg-background/80 backdrop-blur-sm">
+    <footer className="w-full md:mt-30 mt-20 border-t py-16 px-10 bg-background/80 backdrop-blur-sm">
       <div>
         <div className="flex flex-col">
-          <h2 className="text-2xl leading-none">SocialNest</h2>
+          <div className="flex gap-2 items-center">
+            <Image src="/logo.png" alt="logo" width={30} height={30} />
+            <h2 className="text-2xl font-semibold leading-none">SocialNest</h2>
+          </div>
           <p className="mt-2 text-sm text-muted-foreground dark:text-neutral-400">
             One Hub. Every Platform. Endless Possibilities.
           </p>
@@ -40,8 +44,23 @@ const Footer = () => {
         </div>
 
         <div className="text-xs md:text-sm dark:text-neutral-400 flex flex-col md:flex-row gap-2 md:gap-0 items-center justify-between ">
+          <div className="flex flex-wrap justify-center md:justify-start gap-3 text-neutral-400">
+            <Link href="/contact" className="hover:text-orange-400">
+              Contact
+            </Link>
+            <Link href="/privacy" className="hover:text-orange-400">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-orange-400">
+              Terms of Service
+            </Link>
+            <Link href="/refund-cancellation" className="hover:text-orange-400">
+              Refund & Cancellation
+            </Link>
+          </div>
+
           <div className="space-y-2">
-            <Link href="https://shivanipalya.tech/">
+            <Link href="https://shivanipalya.tech/" target="_blank" rel="noopener noreferrer">
               <p>
                 Made by{' '}
                 <span className="underline font-bold text-orange-400 hover:text-orange-500">
@@ -57,6 +76,8 @@ const Footer = () => {
               <Link
                 key={link.label}
                 href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-sm hover:text-gray-100 hover:underline"
               >
                 {link.label}

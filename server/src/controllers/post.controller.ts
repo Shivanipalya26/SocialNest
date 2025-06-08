@@ -4,6 +4,7 @@ import prisma from '../config/prisma.config';
 import { postPublisher } from '../utils/postPublisher';
 import { POST_STATUS } from '@prisma/client';
 import { createNotification } from '../utils/notification';
+import { startOfMonth, endOfMonth } from 'date-fns';
 
 export const postController = async (req: AuthRequest, res: Response): Promise<void> => {
   const userId = req.userId;
@@ -22,6 +23,31 @@ export const postController = async (req: AuthRequest, res: Response): Promise<v
       res.status(400).json({ msg: 'User not found' });
       return;
     }
+
+    const now = new Date();
+    const monthStart = startOfMonth(now);
+    const monthEnd = endOfMonth(now);
+
+    const postThisMonth = await prisma.post.count({
+      where: {
+        userId,
+        createdAt: {
+          gte: monthStart,
+          lte: monthEnd,
+        },
+      },
+    });
+
+    if (postThisMonth >= 15) {
+      res
+        .status(403)
+        .json({
+          error:
+            'Monthly post limit reached. You can create up to 5 posts per month on the free plan.',
+        });
+      return;
+    }
+    console.log('post this month, ', postThisMonth);
 
     const fields = req.fields as unknown as {
       postText: string;
