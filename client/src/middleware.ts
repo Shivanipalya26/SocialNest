@@ -22,32 +22,34 @@ export async function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
   const { pathname, searchParams } = request.nextUrl;
 
+  const isRSC = searchParams.has('_rsc');
   const isPublic =
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname === '/login' ||
     pathname === '/register' ||
-    pathname === '/' ||
-    searchParams.has('_rsc');
+    pathname === '/';
 
-  if (isPublic) {
+  if (isPublic || isRSC) {
     return NextResponse.next();
   }
 
-  if (token) {
-    const payload = await verifyJWT(token);
-
-    if (payload) {
-      if (pathname === '/') {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
-      }
-      return NextResponse.next();
-    } else {
-      const response = NextResponse.redirect(new URL('/login', request.url));
-      // response.cookies.delete('token');
-      return response;
-    }
+  if (!token) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  return NextResponse.redirect(new URL('/login', request.url));
+  const payload = await verifyJWT(token);
+
+  if (!payload) {
+    const response = NextResponse.redirect(new URL('/login', request.url));
+    // Optionally delete invalid cookie:
+    // response.cookies.delete('token');
+    return response;
+  }
+
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  return NextResponse.next();
 }
