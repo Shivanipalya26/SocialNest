@@ -20,14 +20,15 @@ async function verifyJWT(token: string) {
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
 
   const isPublic =
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname === '/login' ||
     pathname === '/register' ||
-    pathname === '/';
+    pathname === '/' ||
+    searchParams.has('_rsc');
 
   if (isPublic) {
     return NextResponse.next();
