@@ -22,7 +22,7 @@ const PostPreview = ({ content, medias }: PostPreviewProps) => {
   }, [user, fetchUser]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-screen">
       {platforms.map(platform => (
         <Card className="border-none shadow-none rounded-none p-0" key={platform}>
           <CardHeader className="px-1 py-3">
