@@ -4,8 +4,28 @@ import { motion } from 'motion/react';
 import Aurora from '../background/Aurora';
 import { Button } from '../ui/button';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useAuthStore } from '@/store/AuthStore/useAuthStore';
 
 const HomePage = () => {
+  const router = useRouter();
+  const { user, fetchUser } = useAuthStore();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      await fetchUser();
+    };
+
+    checkAuth();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      router.replace('/dashboard');
+    }
+  }, [user]);
+
   return (
     <section className="pt-12">
       <div className="flex relative flex-col h-[700px] md:min-h-screen mx-auto my-5 gap-10 md:gap-[100px] pb-[10px] md:pb-0 pt-24 md:pt-0 md:flex-row items-center justify-center flex-grow bg-transparent overflow-hidden">

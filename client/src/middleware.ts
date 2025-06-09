@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
 export const config = {
-  matcher: ['/', '/dashboard/:path*', '/create/:path*'],
+  matcher: ['/dashboard/:path*', '/create/:path*'],
 };
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
@@ -20,11 +20,15 @@ async function verifyJWT(token: string) {
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
-  const { pathname, searchParams } = request.nextUrl;
+  console.log('token:', token);
+  const pathname = request.nextUrl.pathname;
+  console.log('pathname ,', pathname);
+  const accept = request.headers.get('accept');
 
-  if (searchParams.has('_rsc')) {
+  if (accept === '*/*' && !token) {
     return NextResponse.next();
   }
+
   const isPublic =
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
@@ -40,15 +44,10 @@ export async function middleware(request: NextRequest) {
   }
 
   const payload = await verifyJWT(token);
+  console.log('payload: ', payload);
 
   if (!payload) {
-    const response = NextResponse.redirect(new URL('/login', request.url));
-    // response.cookies.delete('token');
-    return response;
-  }
-
-  if (pathname === '/') {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   return NextResponse.next();
