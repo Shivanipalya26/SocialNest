@@ -31,7 +31,7 @@ const GuidePage = () => {
   return (
     <div className="min-h-screen bg-black text-slate-100 pt-20">
       <div className="flex flex-col md:flex-row">
-        <aside className="hidden md:block w-64 border-r border-slate-800 bg-slate-900/30 min-h-screen sticky top-16">
+        <aside className="hidden md:block w-72 border-r border-slate-800 bg-slate-900/30 min-h-screen sticky top-16">
           <div className="p-6">
             <nav className="space-y-6">
               {navigationItems.map(section => (
@@ -348,7 +348,7 @@ const GuidePage = () => {
           </div>
         </main>
 
-        <aside className="hidden md:block w-64 border-l border-slate-800 bg-slate-900/30 min-h-screen sticky top-16">
+        <aside className="hidden md:block right-0 w-[calc((100vw-1280px)/2)] border-l border-slate-800 bg-slate-900/30 min-h-screen sticky top-16">
           <div className="p-6">
             <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">
               On This Page

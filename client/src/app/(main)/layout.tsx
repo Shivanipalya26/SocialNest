@@ -2,6 +2,7 @@
 
 import AuthProvider from '@/components/AuthProvider';
 import { useAuthStore } from '@/store/AuthStore/useAuthStore';
+import RootStructure from '@/styles/template/RootLayout';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 
@@ -37,5 +38,9 @@ export default function RootLayout({
     );
   }
 
-  return <AuthProvider>{children}</AuthProvider>;
+  return (
+    <AuthProvider>
+      <RootStructure>{children}</RootStructure>
+    </AuthProvider>
+  );
 }

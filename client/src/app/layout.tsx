@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import RootStructure from '@/styles/template/RootLayout';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/sonner';
 import AuthProvider from '@/components/AuthProvider';
@@ -64,10 +63,8 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <AuthProvider>
-            <RootStructure>
-              {children}
-              <Toaster />
-            </RootStructure>
+            {children}
+            <Toaster />
           </AuthProvider>
         </ThemeProvider>
       </body>
