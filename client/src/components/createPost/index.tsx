@@ -22,8 +22,10 @@ import { AnimatePresence } from 'motion/react';
 import { SimplePostPreview } from '../Previews/SimplePostPreview';
 import AIAssist from '../aiAssist';
 import EnhanceAndImageGen from '../enhance&ImageGen';
-import { useNotificationStore } from '@/store/NotificationStore/useNotificationStore';
+// import { useNotificationStore } from '@/store/NotificationStore/useNotificationStore';
 import { useSubscriptionStore } from '@/store/SubscriptionStore/useSubscription';
+import { createClient } from '@supabase/supabase-js';
+import { useAuthStore } from '@/store/AuthStore/useAuthStore';
 
 export type Platform = 'x' | 'linkedin' | 'instagram' | 'threads';
 
@@ -42,11 +44,17 @@ const CreatePost = () => {
   const [scheduleDate, setScheduleDate] = useState<Date | null>(null);
   const [scheduleTime, setScheduleTime] = useState<string | null>(null);
   const [isPollingNotifications, setIsPollingNotifications] = useState(false);
+  const { user } = useAuthStore();
   const { fetchConnectedApps, connectedApps, isFetchingApps, hasFetched } = useDashboardStore();
   const { medias, isUploadingMedia, resetMedias } = useMediaStore();
-  const { fetchNotifications, notifications } = useNotificationStore();
+  // const { fetchNotifications, notifications } = useNotificationStore();
   const { setCreditCount } = useSubscriptionStore();
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
+  const userId = user?.id;
   const memoizedMedia = useMemo(() => medias.files || [], [medias.files]);
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -58,55 +66,95 @@ const CreatePost = () => {
   };
 
   const POLLING_DURATION = 3000;
-  const POLLING_INTERVAL = 3000;
+  // const POLLING_INTERVAL = 3000;
+
+  // useEffect(() => {
+  //   let interval: ReturnType<typeof setInterval> | null = null;
+  //   let timeout: ReturnType<typeof setTimeout> | null = null;
+
+  //   if (isPollingNotifications) {
+  //     interval = setInterval(async () => {
+  //       try {
+  //         await fetchNotifications();
+
+  //         const recentPublishedPostNotification = notifications.find(
+  //           notification =>
+  //             (notification.type === 'POST_STATUS_FAILED' ||
+  //               notification.type === 'POST_STATUS_SUCCESS') &&
+  //             new Date(notification.createdAt).getTime() > Date.now() - 30000
+  //         );
+
+  //         if (recentPublishedPostNotification) {
+  //           setIsPollingNotifications(false);
+  //           if (recentPublishedPostNotification.type === 'POST_STATUS_SUCCESS') {
+  //             toast('Post Published', {
+  //               description: 'Your post has been published successfully',
+  //             });
+  //           } else {
+  //             toast('Post Failed', {
+  //               description: 'Your post failed to publish. Please try again.',
+  //             });
+  //           }
+  //         }
+  //       } catch (error) {
+  //         console.error('Polling error: ', error);
+  //         toast('Polling Error', {
+  //           description: 'An error occurred while checking for updates.',
+  //         });
+  //       }
+  //     }, POLLING_INTERVAL);
+  //     timeout = setTimeout(() => {
+  //       setIsPollingNotifications(false);
+  //       toast('Notification Polling Stopped', {
+  //         description: 'Stopped checking for notifications. You can check manually if needed.',
+  //       });
+  //     }, POLLING_DURATION);
+  //   }
+  //   return () => {
+  //     if (interval) clearInterval(interval);
+  //     if (timeout) clearTimeout(timeout);
+  //   };
+  // }, [isPollingNotifications, notifications]);
 
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | null = null;
-    let timeout: ReturnType<typeof setTimeout> | null = null;
+    if (!isPollingNotifications) return;
 
-    if (isPollingNotifications) {
-      interval = setInterval(async () => {
-        try {
-          await fetchNotifications();
-
-          const recentPublishedPostNotification = notifications.find(
-            notification =>
-              (notification.type === 'POST_STATUS_FAILED' ||
-                notification.type === 'POST_STATUS_SUCCESS') &&
-              new Date(notification.createdAt).getTime() > Date.now() - 30000
-          );
-
-          if (recentPublishedPostNotification) {
-            setIsPollingNotifications(false);
-            if (recentPublishedPostNotification.type === 'POST_STATUS_SUCCESS') {
-              toast('Post Published', {
-                description: 'Your post has been published successfully',
-              });
-            } else {
-              toast('Post Failed', {
-                description: 'Your post failed to publish. Please try again.',
-              });
-            }
+    const channel = supabase
+      .channel('notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `userId=eq.${userId}`,
+        },
+        payload => {
+          const notification = payload.new;
+          if (notification.type === 'POST_STATUS_SUCCESS') {
+            toast('Post Published', {
+              description: 'Your post has been published successfully',
+            });
+          } else if (notification.type === 'POST_STATUS_FAILED') {
+            toast('Post Failed', {
+              description: 'Your post failed to publish. Please try again.',
+            });
           }
-        } catch (error) {
-          console.error('Polling error: ', error);
-          toast('Polling Error', {
-            description: 'An error occurred while checking for updates.',
-          });
+          setIsPollingNotifications(false);
         }
-      }, POLLING_INTERVAL);
-      timeout = setTimeout(() => {
-        setIsPollingNotifications(false);
-        toast('Notification Polling Stopped', {
-          description: 'Stopped checking for notifications. You can check manually if needed.',
-        });
-      }, POLLING_DURATION);
-    }
+      )
+      .subscribe();
+
+    const timeout = setTimeout(() => {
+      setIsPollingNotifications(false);
+      toast('Notification check completed');
+    }, POLLING_DURATION);
+
     return () => {
-      if (interval) clearInterval(interval);
-      if (timeout) clearTimeout(timeout);
+      supabase.removeChannel(channel);
+      clearTimeout(timeout);
     };
-  }, [isPollingNotifications, notifications]);
+  }, [isPollingNotifications, userId]);
 
   const handlePublishPost = async () => {
     if (selectedPlatforms.length === 0) {
