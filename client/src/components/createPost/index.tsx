@@ -24,8 +24,9 @@ import AIAssist from '../aiAssist';
 import EnhanceAndImageGen from '../enhance&ImageGen';
 // import { useNotificationStore } from '@/store/NotificationStore/useNotificationStore';
 import { useSubscriptionStore } from '@/store/SubscriptionStore/useSubscription';
-import { createClient } from '@supabase/supabase-js';
+
 import { useAuthStore } from '@/store/AuthStore/useAuthStore';
+import { supabase } from '@/lib/supabase';
 
 export type Platform = 'x' | 'linkedin' | 'instagram' | 'threads';
 
@@ -49,10 +50,6 @@ const CreatePost = () => {
   const { medias, isUploadingMedia, resetMedias } = useMediaStore();
   // const { fetchNotifications, notifications } = useNotificationStore();
   const { setCreditCount } = useSubscriptionStore();
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
 
   const userId = user?.id;
   const memoizedMedia = useMemo(() => medias.files || [], [medias.files]);
